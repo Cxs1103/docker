@@ -1,0 +1,44 @@
+FROM centos:7.9.2009
+MAINTAINER Cxs1103
+
+ENV TOMCAT_VERSION=9.0.53 \
+    JENKINS_EVERSION=2.313 \
+    MAVEN_EVERSION=3.8.2 \
+    ANT_EVERSION=1.10.11 \
+    TOMCAT_HOME=/usr/local/tomcat \
+    MAVEN_HOME=/usr/local/maven \
+    ANT_HOME=/usr/local/ant
+
+RUN yum install wget curl unzip iproute net-tools -y && \
+    yum clean all && \
+    rm -rf /var/cache/yum/*
+
+COPY jdk-8u241-linux-x64.tar.gz /usr/local/
+
+RUN tar -zxf /usr/local/jdk-8u241-linux-x64.tar.gz  -C /usr/local/ && \
+    rm -rf /usr/local/jdk-8u241-linux-x64.tar.gz && \
+    wget http://mirrors.ustc.edu.cn/apache/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
+    tar zxf apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
+    mv apache-tomcat-${TOMCAT_VERSION} ${TOMCAT_HOME} && \
+    rm -rf apache-tomcat-${TOMCAT_VERSION}.tar.gz ${TOMCAT_HOME}/webapps/* && \
+    mkdir ${TOMCAT_HOME}/webapps/test && \
+    sed -i '1a JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom"' ${TOMCAT_HOME}/bin/catalina.sh && \
+    wget --no-check-certificate -P ${TOMCAT_HOME}/webapps/ https://mirrors.tuna.tsinghua.edu.cn/jenkins/war/${JENKINS_EVERSION}/jenkins.war && \
+    wget --no-check-certificate https://apache.website-solution.net/maven/maven-3/${MAVEN_EVERSION}/binaries/apache-maven-${MAVEN_EVERSION}-bin.tar.gz  && \
+    tar zxf apache-maven-${MAVEN_EVERSION}-bin.tar.gz && \
+    mv apache-maven-${MAVEN_EVERSION} ${MAVEN_HOME} && \
+    rm -rf apache-maven-${MAVEN_EVERSION}-bin.tar.gz && \
+    wget --no-check-certificate https://dlcdn.apache.org//ant/binaries/apache-ant-${ANT_EVERSION}-bin.tar.gz && \
+    tar -zxf apache-ant-${ANT_EVERSION}-bin.tar.gz && \
+    mv apache-ant-${ANT_EVERSION} ${ANT_HOME} && \
+    rm -rf apache-ant-${ANT_EVERSION}-bin.tar.gz && \
+    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+ENV JAVA_HOME=/usr/local/jdk1.8.0_241 \
+    CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/jre/lib \
+    PATH=$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$TOMCAT_HOME/bin:$MAVEN_HOME/bin:$ANT_HOME/bin:$PATH
+
+WORKDIR ${TOMCAT_HOME}
+
+EXPOSE 8080
+CMD ["catalina.sh", "run"]

@@ -1,0 +1,25 @@
+FROM centos:7.9.2009
+MAINTAINER Cxs1103
+
+ENV TOMCAT_VERSION=9.0.53
+ENV JENKINS_EVERSION=2.313
+
+RUN yum install java-1.8.0-openjdk wget curl unzip iproute net-tools -y && \
+    yum clean all && \
+    rm -rf /var/cache/yum/*
+
+RUN wget http://mirrors.ustc.edu.cn/apache/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
+    tar zxf apache-tomcat-${TOMCAT_VERSION}.tar.gz && \
+    mv apache-tomcat-${TOMCAT_VERSION} /usr/local/tomcat && \
+    rm -rf apache-tomcat-${TOMCAT_VERSION}.tar.gz /usr/local/tomcat/webapps/* && \
+    mkdir /usr/local/tomcat/webapps/test && \
+    sed -i '1a JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom"' /usr/local/tomcat/bin/catalina.sh && \
+    wget --no-check-certificate -P /usr/local/tomcat/webapps/ https://mirrors.tuna.tsinghua.edu.cn/jenkins/war/${JENKINS_EVERSION}/jenkins.war && \
+    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+ENV PATH $PATH:/usr/local/tomcat/bin
+
+WORKDIR /usr/local/tomcat
+
+EXPOSE 8080
+CMD ["catalina.sh", "run"]
