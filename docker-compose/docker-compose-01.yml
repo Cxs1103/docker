@@ -1,0 +1,93 @@
+version: "3.0"
+
+services:
+  tomcat01: # 服务名唯一
+    container_name: tomcat01 #相当于有run的--name
+    image: tomcat:8.5.56 # 使用那个镜像  相当于run image
+    restart: always
+    ports:  #用来完成host与容器的端口映射  相当于run -p
+      - 8080:8080  # 外部端口:内部端口
+    volumes:  #用来完成宿主机与容器中目录数据卷共享  相当于run -v
+      - ./data/tomcat01:/usr/local/tomcat/webapps #使用自定义路径映射
+      - ./log/tomcat01/tomcat-logs:/docker/apache-tomcat/logs/
+      #- tomcatwebapps01:/usr/local/tomcat/webapps    #创建数据卷进行映射
+    networks:   #代表当前服务使用的那个网桥   相当于run --net
+      - test
+
+  tomcat02:
+    container_name: tomcat02
+    image: tomcat:8.5.56
+    restart: always
+    ports:
+      - 8081:8080
+    volumes:
+      - ./data/tomcat02:/usr/local/tomcat/webapps #使用自定义路径映射
+      - ./log/tomcat02/tomcat-logs:/docker/apache-tomcat/logs/
+      #- tomcatwebapps02:/usr/local/tomcat/webapps
+    networks:
+      - test
+
+  activemq:
+    container_name: activemq
+    image: rmohr/activemq:5.15.6
+    restart: always
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    volumes:
+      - ./data/activemq:/data/activemq
+      - ./log/activemq:/var/log/activemq
+    networks:
+      - test
+
+  redis:
+    container_name: redis
+    image: redis:3.2
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      #- redisdata:/data # redis数据卷
+      - ./conf/redis:/usr/local/etc/redis
+      - ./data/redis:/data
+      - ./log/redis:/logs/redis-logs
+    networks:
+      - test
+    command: "redis-server /usr/local/etc/redis --appendonly yes --requirepass Ranger123" # run 镜像之后用来覆盖容器内容默认命令,requirepass 设置密码，appendonly 数据持久化
+
+  rabbitmq:
+    container_name: rabbitmq
+    #image: rabbitmq:management
+    image: rabbitmq:3.7.27-management
+    restart: always
+    privileged: true #给数据卷赋权限 避免启动出现Permission denied
+    environment:
+      - RABBITMQ_DEFAULT_USER=Ranger
+      - RABBITMQ_DEFAULT_PASS=123456
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq
+      - ./conf/rabbitmq:/etc/rabbitmq
+      #- ./conf/rabbitmq:/tmp/rabbitmq
+      - ./log/rabbitmq:/var/log/rabbitmq
+    networks:
+      - test
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500k"
+        max-file: "10"
+
+#volumes:  # 声明上面服务所使用的自动创建的卷名
+#  tomcatwebapps01: #声明指令的卷名  compose自动创建该卷名但是会在之前加入项目名
+#    external:  #使用自定义卷名
+#      false     # true确定使用指定卷名   注意：一旦使用外部自定义卷名启动服务之前必须手动创建
+#  tomcatwebapps02:
+#  redisdata:
+
+networks:  # 定义服务到桥
+  test:   # 定义上面的服务用到的网桥名称，默认创建就是bridge
+    external:
+      true   #使用外部指定的网桥  注意：网桥必须提前创建好，必须存在

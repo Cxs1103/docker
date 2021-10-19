@@ -1,0 +1,42 @@
+version: "3.0"
+
+services:
+  mysql01:
+    container_name: mysql01
+    image: mysql:latest 
+    ports:
+      - "3306:3306"
+    volumes:
+      - /data/mysql/data:/var/lib/mysql #mysql数据卷
+      - /data/mysql/conf:/etc/mysql  #mysql配置文件
+      - /data/mysql/files:/var/lib/mysql-files/
+    environment:   # mysql 环境变量配置，可以用数组或字典两种方式
+      - MYSQL_ROOT_PASSWORD=root  # 使用环境变量设置mysql密码
+    networks:
+      - test
+
+  mysql02:
+    container_name: mysql02
+    image: mysql:latest
+    ports:
+      - "3307:3306"
+    volumes:
+      - /data/mysql/data2:/var/lib/mysql #mysql数据卷
+      - /data/mysql/conf2:/etc/mysql  #mysql配置文件
+      - /data/mysql/files:/var/lib/mysql-files
+    environment:   # mysql 环境变量配置，可以用数组或字典两种方式
+      - MYSQL_ROOT_PASSWORD=root  # 使用环境变量设置mysql密码
+    networks:
+      - test
+
+volumes:  # 声明上面服务所使用的自动创建的卷名
+  tomcatwebapps01: #声明指令的卷名  compose自动创建该卷名但是会在之前加入项目名
+    external:  #使用自定义卷名
+      false     # true确定使用指定卷名   注意：一旦使用外部自定义卷名启动服务之前必须手动创建
+  mysqldata:
+  mysqlconf:
+
+networks:  # 定义服务到桥
+  test:   # 定义上面的服务用到的网桥名称，默认创建就是bridge
+    external:
+      true   #使用外部指定的网桥  注意：网桥必须提前创建好，必须存在
