@@ -1,0 +1,14 @@
+FROM centos:7.5.1804
+MAINTAINER "Cxs1103"
+
+ADD jdk1.8.0_241  /usr/local/jdk
+ADD apache-tomcat-9.0.46 /usr/local/tomcat
+
+ENV JAVA_HOME=/usr/local/jdk
+ENV CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$CLASSPATH
+ENV PATH=/sbin:$JAVA_HOME/bin:$PATH
+ENV CATALINA_HOME=/usr/local/tomcat/
+
+EXPOSE 8080
+
+CMD /usr/local/tomcat/bin/catalina.sh run

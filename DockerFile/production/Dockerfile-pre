@@ -1,0 +1,22 @@
+FROM ubuntu
+MAINTAINER "LY"
+
+RUN mkdir jdk && mkdir tomcat
+
+ADD jdk1.8.0_241 /opt/reports/jdk/
+ADD apache-tomcat-9.0.30 /opt/reports/tomcat/ 
+COPY ./reports /opt/reports/tomcat/webapps/reports/
+
+ENV JAVA_HOME=/opt/reports/jdk/
+ENV JRE_HOME=$JAVA_HOME/jre
+ENV CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib:$CLASSPATH
+ENV PATH=/sbin:$JAVA_HOME/bin:$PATH
+
+ENV CATALINA_HOME=/opt/reports/tomcat/
+
+WORKDIR $CATALINA_HOME
+
+ENV TZ=Asia/Shanghai
+EXPOSE 8080
+
+ENTRYPOINT ["/opt/reports/tomcat/bin/catalina.sh","run"]

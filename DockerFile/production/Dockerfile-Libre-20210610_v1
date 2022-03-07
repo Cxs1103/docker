@@ -1,0 +1,42 @@
+FROM centos:7.5.1804
+MAINTAINER "Cxs1103"
+
+RUN yum install telnet -y \
+	&& yum groupinstall "Fonts" -y \
+	&& yum groupinstall "Input Methods" -y \  
+	&& rm -rf /etc/localtime \
+	&& ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+	&& yum -y install kde-l10n-Chinese \
+	&& localedef -c -f UTF-8 -i zh_CN zh_CN.utf8 \
+	&& yum clean all \
+	&& rm -rf /var/cache/yum/*
+
+ADD fonts /usr/share/fonts
+
+ADD LibreOffice_6.4.0.3_Linux_x86-64_rpm /opt/libreoffice/LibreOffice_6.4.0.3_Linux_x86-64_rpm
+ADD LibreOffice_6.4.0.3_Linux_x86-64_rpm_langpack_zh-CN /opt/libreoffice/LibreOffice_6.4.0.3_Linux_x86-64_rpm_langpack_zh-CN
+ADD LibreOffice_6.4.0.3_Linux_x86-64_rpm_helppack_zh-CN /opt/libreoffice/LibreOffice_6.4.0.3_Linux_x86-64_rpm_helppack_zh-CN
+ADD LibreOffice_6.4.0.3_Linux_x86-64_rpm_sdk /opt/libreoffice/LibreOffice_6.4.0.3_Linux_x86-64_rpm_sdk
+
+WORKDIR /opt/libreoffice
+
+RUN echo y | yum install ./LibreOffice_6.4.0.3_Linux_x86-64_rpm/RPMS/*.rpm
+RUN echo y | yum install ./LibreOffice_6.4.0.3_Linux_x86-64_rpm_langpack_zh-CN/RPMS/*.rpm
+RUN echo y | yum install ./LibreOffice_6.4.0.3_Linux_x86-64_rpm_helppack_zh-CN/RPMS/*.rpm
+RUN echo y | yum install ./LibreOffice_6.4.0.3_Linux_x86-64_rpm_sdk/RPMS/*.rpm
+
+RUN localedef -c -f UTF-8 -i zh_CN zh_CN.utf8
+
+ADD jdk1.8.0_241  /usr/local/jdk
+ADD apache-tomcat-9.0.58 /usr/local/tomcat
+
+ENV JAVA_HOME=/usr/local/jdk
+ENV CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$CLASSPATH
+ENV PATH=/sbin:$JAVA_HOME/bin:$PATH
+ENV CATALINA_HOME=/usr/local/tomcat/
+
+ENV LC_ALL zh_CN.utf8
+
+EXPOSE 8080
+
+CMD /usr/local/tomcat/bin/catalina.sh run

@@ -1,0 +1,14 @@
+FROM frolvlad/alpine-java:jre8-slim
+MAINTAINER "LY"
+
+WORKDIR /opt
+
+ADD reports.zip .
+RUN unzip reports.zip
+
+ENV TZ=Asia/Shanghai
+EXPOSE 8080
+
+ENV JAVA_OPTS "-Xms256m -Xmx1024m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=512m"
+
+ENTRYPOINT java -cp /opt/reports $JAVA_OPTS org.springframework.boot.loader.WarLauncher
