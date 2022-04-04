@@ -1,15 +1,6 @@
 FROM centos:7.9.2009
 MAINTAINER Cxs1103
 
-# ENV ANT_EVERSION=1.10.11 \
-#     JMETER_EVERSION=5.4.3 \
-#     ANT_HOME=/usr/local/ant \
-#     JMETER_HOME=/usr/local/jmeter
-
-# RUN yum install wget -y && \
-#     yum clean all && \
-#     rm -rf /var/cache/yum/*
-
 COPY jdk-8u241-linux-x64.tar.gz /usr/local/
 COPY apache-ant-1.10.11-bin.tar.gz /usr/local/
 COPY apache-jmeter-5.4.3.tgz /usr/local/
@@ -19,14 +10,6 @@ RUN tar -zxf /usr/local/jdk-8u241-linux-x64.tar.gz -C /usr/local/ && \
     tar zxf /usr/local/apache-ant-1.10.11-bin.tar.gz -C /usr/local/  && \
     rm -rf /usr/local/jdk-8u241-linux-x64.tar.gz /usr/local/apache-jmeter-5.4.3.tgz /usr/local/apache-ant-1.10.11-bin.tar.gz && \
     cp /usr/local/apache-jmeter-5.4.3/extras/ant-jmeter-1.1.1.jar /usr/local/apache-ant-1.10.11/lib/ && \
-    # wget --no-check-certificate https://dlcdn.apache.org//ant/binaries/apache-ant-${ANT_EVERSION}-bin.tar.gz && \
-    # tar -zxf apache-ant-${ANT_EVERSION}-bin.tar.gz && \
-    # mv apache-ant-${ANT_EVERSION} ${ANT_HOME} && \
-    # rm -rf apache-ant-${ANT_EVERSION}-bin.tar.gz && \
-    # wget --no-check-certificate https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-${JMETER_EVERSION}.tgz && \
-    # tar -zxf apache-jmeter-${JMETER_EVERSION}.tgz && \
-    # mv apache-jmeter-${JMETER_EVERSION} ${JMETER_HOME} && \
-    # rm -rf apache-jmeter-${JMETER_EVERSION}.tgz && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 ENV JAVA_HOME=/usr/local/jdk1.8.0_241 \
@@ -34,7 +17,3 @@ ENV JAVA_HOME=/usr/local/jdk1.8.0_241 \
     JMETER_HOME=/usr/local/apache-jmeter-5.4.3 \
     CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/jre/lib \
     PATH=$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$JMETER_HOME/bin:$ANT_HOME/bin:$PATH
-
-WORKDIR /usr/local/
-
-ENTRYPOINT ["/entrypoint.sh"]
