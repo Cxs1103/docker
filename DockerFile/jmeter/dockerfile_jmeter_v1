@@ -1,0 +1,17 @@
+FROM java:8
+
+ENV http_proxy ""
+ENV https_proxy ""
+
+RUN mkdir /jmeter
+RUN cd /jmeter
+
+ENV JMETER_VERSION=5.1.1
+ENV JMETER_HOME=/jmeter/apache-jmeter-${JMETER_VERSION}
+ENV JMETER_PATH=${JMETER_HOME}/bin:${PATH}
+
+COPY apache-jmeter-5.1.1.tgz /jmeter
+
+RUN cd /jmeter \
+    && tar xvf apache-jmeter-5.1.1.tgz \
+    && rm apache-jmeter-5.1.1.tgz
