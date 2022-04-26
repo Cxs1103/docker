@@ -15,5 +15,5 @@ RUN tar -zxf /usr/local/jdk-8u241-linux-x64.tar.gz -C /usr/local/ && \
 ENV JAVA_HOME=/usr/local/jdk1.8.0_241 \
     ANT_HOME=/usr/local/apache-ant-1.10.11 \
     JMETER_HOME=/usr/local/apache-jmeter-5.4.3 \
-    CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/jre/lib \
-    PATH=$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$JMETER_HOME/bin:$ANT_HOME/bin:$PATH
+    CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/jre/lib
+ENV PATH=$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$JMETER_HOME/bin:$ANT_HOME/bin:$PATH
